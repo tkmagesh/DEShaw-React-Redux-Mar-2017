@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello World</title>
+	<script src="jquery-3.2.0.min.js"></script>
+	<script src="react.js"></script>
+	<script src="react-dom.js"></script>
+	<script src="babel.min.js"></script>
+
+	<script type="text/babel">
+		var HelloWorld = React.createClass({
+			onGreetClick : function(){
+				var greetMessage = `Hi ${this.refs.txtName.value}, Welcome to React!`;
+				this.setState({message : greetMessage});
+			},
+			getInitialState : function(){
+				return { message : '[Default Message]'};
+			},
+			render : function(){
+				return (
+					<div>
+						<label htmlFor="name">Name :</label>
+						<input type="text" ref="txtName"/>
+						<input type="button" value="Greet" onClick={this.onGreetClick}/>
+						<h1>{this.state.message}</h1>
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(<HelloWorld></HelloWorld>, document.getElementById("content"));
+
+			
+	</script>
+</head>
+<body>
+	
+	<div id="content">
+		
+	</div>
+
+</body>
+</html>
