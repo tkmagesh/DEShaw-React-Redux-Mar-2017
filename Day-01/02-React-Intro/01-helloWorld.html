@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello World</title>
+	<script src="jquery-3.2.0.min.js"></script>
+	<script src="react.js"></script>
+	<script src="react-dom.js"></script>
+	<script src="babel.min.js"></script>
+
+	<script type="text/babel">
+		var HelloWorld = React.createClass({
+			render : function(){
+				return (
+					<h1>Hello {this.props.data}! Welcome to React!!</h1>
+				);
+			}
+		});
+
+		function HelloWorldView(){
+			var $root = this.$root = $("<div></div>");
+			var _model = null;
+			this.setModel = function(value){
+				_model = value;
+			}
+			this.render = function(){
+				$root.html(`<h1>Hello ${_model}! Welcome to React!!</h1>`);
+				return this;
+			}
+		}
+
+		$(function(){
+			var view = new HelloWorldView();
+			
+			$("#jQRender").click(function(){
+				var name = $("#txtName").val();
+				view.setModel(name);
+				view.render().$root.appendTo($("#jquery-content"));
+			});
+
+			$("#reactRender").click(function(){
+				var name = $("#txtName").val();
+				ReactDOM.render(<HelloWorld data={name}></HelloWorld>, document.getElementById("react-content"));
+			});
+		})
+	</script>
+</head>
+<body>
+	<div>
+		<label for="">Name :</label>
+		<input type="text" name="" id="txtName">
+	</div>
+	<input type="button" id="jQRender" value="jQuery render">
+	<div id="jquery-content">
+		
+	</div>
+	<input type="button" id="reactRender" value="React render">
+	<div id="react-content">
+		
+	</div>
+
+</body>
+</html>
