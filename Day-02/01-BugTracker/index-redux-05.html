@@ -75,7 +75,23 @@
 			}
 		}
 
-		var store = new Redux.createStore(bugsReducer);
+		function employeesReducer(currentState = [], action){
+			switch (action.type){
+				case 'ADD_NEW_EMP' :
+					return currentState.concat([action.payload.empname]);
+					break;
+				default :
+					return currentState;
+			}
+		}
+
+		var combinedReducers = Redux.combineReducers({
+			bugs : bugsReducer,
+			employees : employeesReducer
+		});
+
+		var store = new Redux.createStore(combinedReducers);
+
 
 		
 
@@ -139,6 +155,7 @@
 				)
 			}
 		}
+		
 		function createBugActions(dispatch){
 			
 
@@ -150,7 +167,10 @@
 							bugName : bugName
 						}
 					};
-					dispatch(newBugAction);
+					setTimeout(function(){
+						dispatch(newBugAction);	
+					}, 3000);
+					
 					
 				}
 				
@@ -159,7 +179,7 @@
 
 		let BugTrackerComponent = ReactRedux.connect((state) => {
 			return {
-				bugs : state
+				bugs : state.bugs
 			}
 		}, createBugActions)(BugTracker);
 
