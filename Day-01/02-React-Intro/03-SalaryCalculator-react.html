@@ -123,16 +123,35 @@
 							<input type="range" ref="rangeTax" onChange={this.onTaxChange}  min="0" max="30" />
 							<span id="spanTax">{data.tax}</span>
 						</div>
-						<div className="field">
-							<input type="button" value="Calculate" id="btnCalculate" onClick={this.onCalculateClick} />
-						</div>
-						<div className="field">
-							<div id="divResult">{data.salary}</div>
-						</div>
+						<Calculate onCalculate={this.onCalculateClick}></Calculate>
+						<CalculatorSalary data={data.salary}></CalculatorSalary>
 					</div>
 				)
 			}
 		});
+
+		var Calculate = React.createClass({
+			onCalculateClick : function(){
+				this.props.onCalculate();
+			},
+			render : function(){
+				return (
+					<div className="field">
+						<input type="button" value="Calculate" id="btnCalculate" onClick={this.onCalculateClick} />
+					</div>
+				)
+			}
+		})
+
+		var CalculatorSalary = React.createClass({
+			render : function(){
+				return (
+					<div className="field">
+						<div id="divResult">{this.props.data}</div>
+					</div>
+				)
+			}
+		})
 
 		window.calculator = new SalaryCalculatorModel();
 		function renderApp(){
