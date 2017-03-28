@@ -63,44 +63,72 @@
 			}
 		}
 
-		class BugsCollection extends EventEmitter{
-			constructor(){
+		class Store extends EventEmitter{
+
+			constructor(reducer){
 				super();
-				this._list = [];
+				this.reducer = reducer;
+				var init_action = {
+					type : 'INIT'
+				};
+				this.state = reducer(undefined, init_action);
 			}
-			getData(){
-				return this._list.slice(0);
+
+			getState(){
+				return this.state;	
 			}
-			add(bugName){
-				var newId = this._list.length ? this._list.reduce((result, bug) => result > bug.id ? result : bug.id, 0) + 1 : 1;
-				var newBug = new Bug(newId, bugName);
-				newBug.subscribe('all', () => this.emit('change'));
-				this._list.push(newBug);
-				this.emit('change');
+
+			dispatch(action){
+				let newState = this.reducer(this.state, action);
+				if (newState !== this.state){
+					this.state = newState;
+					this.emit('all');
+				}
+			}
+			
+		}
+
+		function bugsReducer(currentState = [], action){
+			switch (action.type){
+				case 'ADD_NEW' :
+					let newId = currentState.length ? currentState.reduce((result, bug) => result > bug.id ? result : bug.id, 0) + 1 : 1;
+					let newBug = {
+						id : newId,
+						name : action.payload.bugName,
+						isClosed : false,
+						createdAt : new Date()
+					};
+					return currentState.concat([newBug]);
+					break;
+				case 'TOGGLE':
+					var bugToToggle = action.payload;
+					var toggledBug = {
+						id : bugToToggle.id,
+						name : bugToToggle.name,
+						isClosed : !bugToToggle.isClosed,
+						createdAt : bugToToggle.createdAt
+					};
+					return currentState.map(bug => bug.id === bugToToggle.id ? toggledBug : bug);
+					break;
+				default :
+					return currentState;
 			}
 		}
 
-		class Bug extends EventEmitter{
-			constructor(id, name, isClosed = false, createdAt = new Date()){
-				super();
-				this.id = id;
-				this.name = name;
-				this.isClosed = isClosed;
-				this.createdAt = createdAt;
-			}
+		var store = new Store(bugsReducer);
 
-			toggle(){
-				this.isClosed = !this.isClosed;
-				this.emit('all');
-			}
-		}
+		
+
+		
 
 		class BugItem extends React.Component{
 			onBugClick(){
-				console.log('Before -> ', this.props.data);
-				//this.props.data.isClosed = !this.props.data.isClosed;
-				this.props.data.toggle();
-				console.log('After -> ', this.props.data);
+				var toggleBugAction = {
+					type : 'TOGGLE',
+					payload : this.props.data
+				};
+
+				this.props.store.dispatch(toggleBugAction);
 			}
 			render(){
 				var bug = this.props.data;
@@ -121,15 +149,22 @@
 		class BugTracker extends React.Component{
 			onCreateClick(){
 				var bugName = this.refs.txtBugName.value;
-				this.props.bugs.add(bugName);
+				var newBugAction = {
+					type : 'ADD_NEW',
+					payload : {
+						bugName : bugName
+					}
+				};
+				this.props.store.dispatch(newBugAction);
 			}
+
 			onBugClick(){
 				console.log('a bug is being toggled');
 			}
 			render(){
-				var bugs = this.props.bugs.getData();
+				var bugs = this.props.store.getState();
 				var bugItems = bugs.map(bug => (
-					<BugItem data={bug} key={bug.id}></BugItem>
+					<BugItem data={bug} key={bug.id} store={this.props.store}></BugItem>
 				));
 
 				return (
@@ -155,14 +190,11 @@
 			}
 		}
 
-		window.bugsCollection = new BugsCollection();
-		bugsCollection.add('User actions not recognized');
-		bugsCollection.add('Server communication failure');
-
-		bugsCollection.subscribe('change', renderApp);
+		
+		store.subscribe('all', renderApp);
 
 		function renderApp(){
-			ReactDOM.render(<BugTracker bugs={bugsCollection}></BugTracker>, 
+			ReactDOM.render(<BugTracker store={store}></BugTracker>, 
 				document.getElementById('content'));
 		}
 
