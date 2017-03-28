@@ -73,20 +73,32 @@
 			}
 			add(bugName){
 				var newId = this._list.length ? this._list.reduce((result, bug) => result > bug.id ? result : bug.id, 0) + 1 : 1;
-				var newBug = {
-					id : newId,
-					name : bugName,
-					isClosed : false,
-					createdAt : new Date()
-				}
+				var newBug = new Bug(newId, bugName);
 				this._list.push(newBug);
 				this.emit('change');
 			}
 		}
+
+		class Bug extends EventEmitter{
+			constructor(id, name, isClosed = false, createdAt = new Date()){
+				super();
+				this.id = id;
+				this.name = name;
+				this.isClosed = isClosed;
+				this.createdAt = createdAt;
+			}
+
+			toggle(){
+				this.isClosed = !this.isClosed;
+				this.emit('all');
+			}
+		}
+
 		class BugItem extends React.Component{
 			onBugClick(){
 				console.log('Before -> ', this.props.data);
-				this.props.data.isClosed = !this.props.data.isClosed;
+				//this.props.data.isClosed = !this.props.data.isClosed;
+				this.props.data.toggle();
 				console.log('After -> ', this.props.data);
 			}
 			render(){
