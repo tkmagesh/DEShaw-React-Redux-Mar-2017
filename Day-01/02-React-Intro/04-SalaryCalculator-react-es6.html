@@ -128,6 +128,7 @@
 						</div>
 						<Calculate onCalculate={this.onCalculateClick.bind(this)}></Calculate>
 						<CalculatorSalary data={data.salary}></CalculatorSalary>
+						<ItemList></ItemList>
 					</div>
 				)
 			}
@@ -154,6 +155,18 @@
 						<div id="divResult">{this.props.data}</div>
 					</div>
 				)
+			}
+		}
+
+		class ItemList extends React.Component{
+			render(){
+				var products = ['Pen', 'Pencil', 'Marker'];
+				var items = products.map(product => (<li>{product}</li>));
+				return (
+					<ol>
+						{items}
+					</ol>
+				) 
 			}
 		}
 
